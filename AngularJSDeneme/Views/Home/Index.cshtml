@@ -1,0 +1,108 @@
+﻿@model IEnumerable<AngularJSDeneme.Models.Images>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script>
+var app = angular.module("myApp", []);
+app.controller("myCtrl", function($scope) {
+    $scope.images= @Html.Raw(Json.Encode(Model));
+	$scope.addImage = function(){
+		$scope.images.push({IMAGE_URL:$scope.myUrl , IMAGE_ALT:$scope.myAlt });
+	}
+});
+    </script>
+    <style>
+        .modal {
+    display:    none;
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .8 ) 
+                url('http://i.stack.imgur.com/FhHRx.gif') 
+                50% 50% 
+                no-repeat;
+}
+
+/* When the body has the loading class, we turn
+   the scrollbar off with overflow:hidden */
+body.loading {
+    overflow: hidden;   
+}
+
+/* Anytime the body has the loading class, our
+   modal element will be visible */
+body.loading .modal {
+    display: block;
+}
+    </style>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("#Kaydet").click(function(){
+                var incomeUrl = $("#myImageUrl").val();
+                var incomeAlt = $("#myImageAlt").val();
+               
+                var ImageData = {
+                    IMAGE_URL: incomeUrl,
+                    IMAGE_ALT: incomeAlt
+                };
+                
+                $.ajax({
+                    url:'@Url.Action("AddImage" ,"Home" )' ,
+                    type:'POST',
+                    dataType : 'json',
+                    data: ImageData,
+                    //data: JSON.stringify(ImageData),
+                    success:function (data){
+                        alert(data);
+                    },
+                    error : function (err){
+                        alert(data.IMAGE_URL , data.IMAGE_ALT);
+                    }
+                })
+
+                $(document).on({
+                    ajaxStart: function() { 
+                        $('.modal').attr('display', 'block');
+                        $(body).addClass("loading");    
+                    },
+                    ajaxStop: function() { 
+                        $('.modal').attr('display', 'none');
+                        $(body).removeClass("loading"); 
+                    }   
+                });
+            });
+        });
+
+    </script>
+    
+            <div ng-app="myApp" ng-controller="myCtrl">
+                <div class="container">
+                    <div class="row" ng-repeat="x in images">
+                        <div class="col-xs-6 col-md-3">
+                            <a href="#" class="thumbnail">
+                                <img src="{{x.IMAGE_URL}}" alt="{{x.alt}}"/>
+                            </a>
+                        </div>
+                    </div>
+                    <input id="myImageUrl" ng-model="myUrl" placeholder="Resim Url..">
+                    <input id="myImageAlt" ng-model="myAlt" placeholder="Resim Alt">
+                    <button id="Kaydet" ng-click="addImage()">Resim Ekle</button>
+                </div>
+            </div>
+            <div class="modal"><!-- Place at bottom of page --></div>
+        

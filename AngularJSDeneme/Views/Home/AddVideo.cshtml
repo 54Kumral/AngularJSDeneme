@@ -1,0 +1,100 @@
+﻿@model IEnumerable<AngularJSDeneme.Models.Videos>
+@{
+    ViewBag.Title = "AddVideo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+<script>
+var app = angular.module("myApp", []);
+app.controller("myCtrl", function($scope) {
+    $scope.videos= @Html.Raw(Json.Encode(Model));
+	$scope.addVideo = function(){
+		$scope.videos.push({VIDEO_URL:$scope.myUrl , VIDEO_BASLIK:$scope.myBaslik });
+	}
+	$scope.removeVideo = function(x){
+	    $scope.videos.splice(x,1);
+	}
+});
+</script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#Kaydet").click(function(){
+            var incomeUrl = $("#myVideoUrl").val();
+            var incomeAlt = $("#myVideoBaslik").val();
+
+            var VideoData = {
+                VIDEO_URL: incomeUrl,
+                VIDEO_BASLIK: incomeAlt
+            };
+
+            $.ajax({
+                url:'@Url.Action("AddVideo" ,"Home" )' ,
+                type:'POST',
+                dataType : 'json',
+                data: VideoData,
+                //data: JSON.stringify(ImageData),
+                success:function (data){
+                    alert(data);
+                },
+                error : function (err){
+                    alert(data.IMAGE_URL , data.IMAGE_ALT);
+                }
+            })
+
+            $(document).on({
+                ajaxStart: function() {
+                    $('.modal').attr('display', 'block');
+                    $(body).addClass("loading");
+                },
+                ajaxStop: function() {
+                    $('.modal').attr('display', 'none');
+                    $(body).removeClass("loading");
+                }
+            });
+        });
+    });
+
+</script>
+
+<div ng-app="myApp" ng-controller="myCtrl">
+    <div class="container">
+        <ul class="timeline">
+            <li ng-repeat="x in videos">
+                <i class="fa fa-video-camera bg-maroon"></i>
+                <div class="timeline-item">
+                    <span class="time"><i class="fa fa-clock-o"></i> 5 days ago</span>
+                    <h3 class="timeline-header"><a href="#">Mr. Doe</a> {{x.VIDEO_BASLIK}}</h3>
+                    <div class="timeline-body">
+                        <h4>{{x.VIDEO_URL}}</h4>
+                        <div class="embed-responsive embed-responsive-16by9">
+                            <iframe class="embed-responsive-item" src="{{x.VIDEO_URL}}" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                        <a class="btn btn-danger btn-xs" ng-click="removeVideo($index)">Delete</a>
+                        <span ng-click="removeVideo($index)">×</span>
+                    </div>
+                    <div class="timeline-footer">
+                        <a href="#" class="btn btn-xs bg-maroon">See comments</a>
+                    </div>
+                </div>
+            </li>
+        </ul>
+        <div class="box-body">
+            <input class="form-control" id="myVideoUrl" ng-model="myUrl" placeholder="Video Url..">
+            <input class="form-control" id="myVideoBaslik" ng-model="myBaslik" placeholder="Video Baslik">
+            <button class="btn btn-xs" id="Kaydet" ng-click="addVideo()">Video Ekle</button>
+        </div>
+        
+    </div>
+</div>
+
